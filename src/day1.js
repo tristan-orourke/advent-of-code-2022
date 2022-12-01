@@ -1,5 +1,5 @@
 import _ from "lodash";
-import input from "./input_1.js";
+import input from "./input_1";
 
 /**
  * 

@@ -1,22 +1,25 @@
-import { flow, identity, map, max, orderBy, parseInt, split, sum, take } from "lodash/fp";
+import { pipe, identity, map, max, orderBy, parseInt, split, sum, take } from "lodash/fp";
+import input from "./input_1";
+
+const parseNum = parseInt(0)
 
 /**
  * 
  * @param string input 
  * @returns number
  */
-const sumRowsOfNumbers = flow(
+const sumRowsOfNumbers = pipe(
   split("\n"),
-  map(parseInt),
+  map(parseNum),
   sum
 );
 
-const sumSectionsOfRows = flow(
+const sumSectionsOfRows = pipe(
   split("\n\n"),
   map(sumRowsOfNumbers)
 );
 
-const takeHighest = (n) => (array) => flow(orderBy(array, "desc"), take(n))
+const takeHighest = (n) => pipe(orderBy(identity, "desc"), take(n))
 
 const testInput = 
 `1000
@@ -35,9 +38,9 @@ const testInput =
 10000`;
 
 // Q1
-const maxTotalCalories = flow(sumSectionsOfRows, max);
+const maxTotalCalories = pipe(sumSectionsOfRows, max);
 // Q2
-const sum3HighestCalories = flow(sumSectionsOfRows, takeHighest(3), sum)
+const sum3HighestCalories = pipe(sumSectionsOfRows, takeHighest(3), sum)
 
 console.log(maxTotalCalories(input));
 console.log(sum3HighestCalories(input));
