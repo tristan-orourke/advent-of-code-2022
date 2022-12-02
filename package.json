@@ -5,6 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "day1": "node -r esm src/day1_fp.js",
+    "day2": "node -r esm src/day2_fp.js",
     "test": "test"
   },
   "repository": {
