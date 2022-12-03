@@ -1,7 +1,6 @@
-import { pipe, identity, map, max, orderBy, parseInt, split, sum, take } from "lodash/fp";
+import { pipe, identity, map, max, orderBy, split, sum, take } from "lodash/fp";
 import input from "./input_1";
-
-const parseNum = parseInt(0)
+import { parseNum } from "./util"
 
 /**
  * 
@@ -21,8 +20,8 @@ const sumSectionsOfRows = pipe(
 
 const takeHighest = (n) => pipe(orderBy(identity, "desc"), take(n))
 
-const testInput = 
-`1000
+const testInput =
+  `1000
 2000
 3000
 

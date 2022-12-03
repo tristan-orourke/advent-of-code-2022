@@ -1,10 +1,8 @@
 import { pipe, identity, map, max, orderBy, parseInt, split, sum, take, nth, join } from "lodash/fp";
 import input from "./input_2";
+import { diverge } from "./util";
 
-/**
- * Apply the same input to an array of functions, result in an array of outputs
- */
-const diverge = fns => input => map(f => f(input), fns)
+
 
 const opponentMap = {
   A: "R",
@@ -63,8 +61,8 @@ const scoreMoves = (moves) => {
 const roundScore = pipe(split(" "), diverge([parseOpponentMove, parsePlayerMove]), scoreMoves)
 const roundScoreV2 = pipe(split(" "), diverge([parseOpponentMove, parsePlayerMoveV2]), scoreMoves)
 
-const testInput = 
-`A Y
+const testInput =
+  `A Y
 B X
 C Z`;
 
