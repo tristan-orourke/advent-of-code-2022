@@ -1,4 +1,5 @@
 import { head, identity, intersection, map, pipe, reduce, size, slice, split, sum, tail } from "lodash/fp";
+import { chunk } from "./util";
 import input from "./input/day3";
 
 const splitInHalves = input => {
@@ -18,15 +19,6 @@ const charPriority = c => {
     ? n - 38 // Capital letters (65-90 converts to 27-52)
     : n - 96 // lowercase (97-122 converts to 1-26)
 };
-
-const splitInChunks = chunkSize => array => {
-  let chunks = []
-  for (let i = 0; i < size(array); i += chunkSize) {
-    const chunk = slice(i, i + chunkSize, array);
-    chunks.push(chunk);
-  }
-  return chunks;
-}
 
 const massIntersection = arrays => reduce(intersection, head(arrays), tail(arrays));
 
@@ -51,7 +43,7 @@ console.log(sumPrioritiesOfDuplicateItems(input));
 
 const sumPrioritiesOfChunkIntersections = pipe(
   split("\n"),
-  splitInChunks(3),
+  chunk(3),
   map(pipe(
     map(split("")), // split strings into arrays, for intersection
     massIntersection,
