@@ -1,5 +1,4 @@
-import { head, intersection, map, pipe, reduce, size, slice, split, sum, tail } from "lodash/fp";
-import { chunk } from "./util";
+import { head, intersection, map, pipe, reduce, size, slice, split, sum, tail, chunk } from "lodash/fp";
 import input from "./input/day3";
 
 const splitInHalves = input => {

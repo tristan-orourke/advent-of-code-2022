@@ -8,6 +8,7 @@
     "day2": "node -r esm src/day2.js",
     "day3": "node -r esm src/day3.js",
     "day4": "node -r esm src/day4.js",
+    "day5": "node -r esm src/day5.js",
     "test": "test"
   },
   "repository": {

@@ -1,7 +1,11 @@
-import { identity, parseInt, reduce, map, size, slice } from "lodash/fp"
+import { identity, parseInt, reduce, map } from "lodash/fp"
 
 /**
  * Apply the same input to an array of functions, result in an array of outputs
+ * @template T
+ * @template Y
+ * @param {Array<(t: T) => Y>} fns
+ * @returns {(input: T) => Y[]}
  */
 export const diverge = fns => input => map(f => f(input), fns)
 
@@ -11,11 +15,10 @@ export const countWhere = (predicate) => reduce((accum, value) => predicate(valu
 
 export const countWhereTrue = countWhere(identity);
 
-export const chunk = chunkSize => array => {
-  let chunks = []
-  for (let i = 0; i < size(array); i += chunkSize) {
-    const chunk = slice(i, i + chunkSize, array);
-    chunks.push(chunk);
-  }
-  return chunks;
-}
+/**
+ * @template T
+ * @param {number} length 
+ * @param {(index: number) => T} initializer
+ * @returns {T[]}
+ */
+export const makeArray = (length, initializer) => Array.from({length}, (_, i) => initializer(i));

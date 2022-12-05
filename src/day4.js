@@ -1,4 +1,4 @@
-import { head, last, map, pipe, split } from "lodash/fp";
+import { head, last, map, pipe, split, spread } from "lodash/fp";
 import { countWhereTrue, parseNum } from "./util";
 import input from "./input/day4";
 
@@ -32,12 +32,12 @@ const testInput =
 
 const countEntirelyOverlappingAssignments = pipe(
   parseAssignments,
-  map(ranges => rangesOverlapEntirely(...ranges)),
+  map(spread(rangesOverlapEntirely)),
   countWhereTrue
 );
 const countPartiallyOverlappingAssignments = pipe(
   parseAssignments,
-  map(ranges => rangesOverlapAtAll(...ranges)),
+  map(spread(rangesOverlapEntirely)),
   countWhereTrue
 );
 
