@@ -1,32 +1,27 @@
-import _ from "lodash";
-import input from "./input_1";
+import { pipe, identity, map, max, orderBy, split, sum, take } from "lodash/fp";
+import input from "./input/day1";
+import { parseNum } from "./util"
 
 /**
  * 
  * @param string input 
  * @returns number
  */
-const sumRowsOfNumbers = (input) => _.chain(input)
-  .split("\n")
-  .map(_.parseInt)
-  .sum()
-  .value()
+const sumRowsOfNumbers = pipe(
+  split("\n"),
+  map(parseNum),
+  sum
+);
 
-const sumSectionsOfRows = (input) => _.chain(input)
-.split("\n\n")
-.map(sumRowsOfNumbers)
-.value()
+const sumSectionsOfRows = pipe(
+  split("\n\n"),
+  map(sumRowsOfNumbers)
+);
 
-/**
- * 
- * @param string input 
- */
-const maxTotalCalories = (input) => _.max(sumSectionsOfRows(input))
+const takeHighest = (n) => pipe(orderBy(identity, "desc"), take(n))
 
-const nHighestGroupSums = (input, n) => _.chain(sumSectionsOfRows(input)).orderBy(_.identity, "desc").take(n).value()
-
-const testInput = 
-`1000
+const testInput =
+  `1000
 2000
 3000
 
@@ -41,5 +36,10 @@ const testInput =
 
 10000`;
 
+// Q1
+const maxTotalCalories = pipe(sumSectionsOfRows, max);
+// Q2
+const sum3HighestCalories = pipe(sumSectionsOfRows, takeHighest(3), sum)
+
 console.log(maxTotalCalories(input));
-console.log(_.sum(nHighestGroupSums(input, 3)))
+console.log(sum3HighestCalories(input));

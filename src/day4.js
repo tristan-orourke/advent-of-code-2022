@@ -1,6 +1,6 @@
 import { head, last, map, pipe, split } from "lodash/fp";
 import { countWhereTrue, parseNum } from "./util";
-import input from "./input_4";
+import input from "./input/day4";
 
 const rangeAContainsRangeB = (a, b) => head(a) <= head(b) && last(a) >= last(b);
 

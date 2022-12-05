@@ -1,8 +1,6 @@
 import { pipe, identity, map, max, orderBy, parseInt, split, sum, take, nth, join } from "lodash/fp";
-import input from "./input_2";
+import input from "./input/day2";
 import { diverge } from "./util";
-
-
 
 const opponentMap = {
   A: "R",

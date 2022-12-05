@@ -1,4 +1,4 @@
-import { identity, parseInt, reduce } from "lodash/fp"
+import { identity, parseInt, reduce, map } from "lodash/fp"
 
 /**
  * Apply the same input to an array of functions, result in an array of outputs
