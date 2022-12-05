@@ -1,4 +1,4 @@
-import { head, identity, intersection, map, pipe, reduce, size, slice, split, sum, tail } from "lodash/fp";
+import { head, intersection, map, pipe, reduce, size, slice, split, sum, tail } from "lodash/fp";
 import { chunk } from "./util";
 import input from "./input/day3";
 
@@ -22,6 +22,7 @@ const charPriority = c => {
 
 const massIntersection = arrays => reduce(intersection, head(arrays), tail(arrays));
 
+// eslint-disable-next-line no-unused-vars
 const testInput =
   `vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL

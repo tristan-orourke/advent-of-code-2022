@@ -20,6 +20,7 @@ const sumSectionsOfRows = pipe(
 
 const takeHighest = (n) => pipe(orderBy(identity, "desc"), take(n))
 
+// eslint-disable-next-line no-unused-vars
 const testInput =
   `1000
 2000

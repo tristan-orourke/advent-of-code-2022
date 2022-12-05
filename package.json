@@ -26,5 +26,9 @@
   "dependencies": {
     "esm": "^3.2.25",
     "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "eslint": "^8.29.0",
+    "eslint-plugin-lodash-fp": "^2.2.0-a1"
   }
 }

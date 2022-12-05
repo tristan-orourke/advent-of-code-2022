@@ -12,13 +12,18 @@ const rangesOverlapAtAll = (a, b) => rangeContainsNum(a, head(b)) || rangeContai
 
 const parseAssignments = pipe(
   split("\n"),
-  map(split(",")),
-  map(map(split("-"))),
-  map(map(map(parseNum)))
-)
+  map(pipe(
+    split(","),
+    map(pipe(
+      split("-"),
+      map(parseNum)
+    ))
+  ))
+);
 
+// eslint-disable-next-line no-unused-vars
 const testInput =
-`2-4,6-8
+  `2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7

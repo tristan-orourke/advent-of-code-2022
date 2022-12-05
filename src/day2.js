@@ -1,4 +1,4 @@
-import { pipe, identity, map, max, orderBy, parseInt, split, sum, take, nth, join } from "lodash/fp";
+import { pipe,  map,  split, sum, nth, join } from "lodash/fp";
 import input from "./input/day2";
 import { diverge } from "./util";
 
@@ -59,6 +59,7 @@ const scoreMoves = (moves) => {
 const roundScore = pipe(split(" "), diverge([parseOpponentMove, parsePlayerMove]), scoreMoves)
 const roundScoreV2 = pipe(split(" "), diverge([parseOpponentMove, parsePlayerMoveV2]), scoreMoves)
 
+// eslint-disable-next-line no-unused-vars
 const testInput =
   `A Y
 B X

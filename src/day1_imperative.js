@@ -1,3 +1,5 @@
+/* eslint-disable lodash-fp/no-chain */
+/* eslint-disable lodash-fp/use-fp */
 import _ from "lodash";
 import input from "./input/day1";
 
@@ -25,6 +27,7 @@ const maxTotalCalories = (input) => _.max(sumSectionsOfRows(input))
 
 const nHighestGroupSums = (input, n) => _.chain(sumSectionsOfRows(input)).orderBy(_.identity, "desc").take(n).value()
 
+// eslint-disable-next-line no-unused-vars
 const testInput = 
 `1000
 2000
