@@ -22,3 +22,10 @@ export const countWhereTrue = countWhere(identity);
  * @returns {T[]}
  */
 export const makeArray = (length, initializer) => Array.from({length}, (_, i) => initializer(i));
+
+export const wrapWithLogger = fn => (...input) => {
+  console.log("input", input);
+  const output = fn(...input);
+  console.log("output", output);
+  return output;
+}

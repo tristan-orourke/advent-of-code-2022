@@ -47,7 +47,7 @@ const moveMultipleBlocks = (count, from, to) => stackMap => {
 }
 
 const extractParamsFromInstruction = instruction => {
-  const instructionPattern = /move (\w+) from (\w+) to (\w+)/
+  const instructionPattern = /move (\d+) from (\w+) to (\w+)/
   // eslint-disable-next-line no-unused-vars
   const [_, count, from, to] = instruction.match(instructionPattern);
   return [count, from, to];
