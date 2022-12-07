@@ -32,7 +32,6 @@ const testInput2 = "nppdvjthqldpwncqszvftbrmjlhg";
 const testInput3 = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg";
 const testInput4 = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
 
-
 // q1
 const findMarkerPosition = pipe(
   scanForPosition(precededByCountUniqueElements(4)),

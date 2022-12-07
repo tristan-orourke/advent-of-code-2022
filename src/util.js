@@ -29,3 +29,7 @@ export const wrapWithLogger = fn => (...input) => {
   console.log("output", output);
   return output;
 }
+
+export const branch = (predicateFn, trueFn, falseFn) => input => predicateFn(input) ? trueFn(input) : falseFn(input);
+
+export const arrayFromMapValues = m => Array.from(m.values());
