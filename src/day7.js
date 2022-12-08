@@ -1,5 +1,5 @@
-import { add, entries, filter, flatMap, forEach, get, head, identity, map, mapValues, min, nth, pipe, split, spread, startsWith, sum, tail, trim, values } from "lodash/fp";
-import { diverge, parseNum, branch, arrayFromMapValues, wrapWithLogger } from "./util";
+import { filter, flatMap, forEach, get, head, identity, map, min, nth, pipe, split, spread, startsWith, sum, tail, trim } from "lodash/fp";
+import { diverge, parseNum, branch, arrayFromMapValues } from "./util";
 import input from "./input/day7";
 /**
  * @typedef {{size: number; name: string}} File
@@ -7,7 +7,7 @@ import input from "./input/day7";
 
 
 /**
- * @typedef {name: string; files: Map<string, File>; dirs: Map<string, Directory>} Directory
+ * @typedef {name: string; files: Map<string, File>; dirs: Map<string, Directory>; totalSize:? number} Directory
  */
 
 /**
