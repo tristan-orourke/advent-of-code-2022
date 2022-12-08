@@ -1,5 +1,6 @@
-import { add, entries, forEach, get, head, identity, map, mapValues, nth, pipe, split, spread, startsWith, sum, tail, trim, values } from "lodash/fp";
-import { diverge, parseNum, branch, arrayFromMapValues } from "./util";
+import { add, entries, filter, flatMap, forEach, get, head, identity, map, mapValues, min, nth, pipe, split, spread, startsWith, sum, tail, trim, values } from "lodash/fp";
+import { diverge, parseNum, branch, arrayFromMapValues, wrapWithLogger } from "./util";
+import input from "./input/day7";
 /**
  * @typedef {{size: number; name: string}} File
  */
@@ -52,8 +53,6 @@ function directorySize(directory) {
     arrayFromMapValues,
     map(directorySize),
     sum)(directory);
-  console.log("files", filesSize);
-  console.log("subdirs", subdirsSize);
   return filesSize + subdirsSize;
 }
 
@@ -98,8 +97,6 @@ class FileSystem {
     const fileOrDir = parseFileOrDir(input);
     if (fileOrDir.dirs !== undefined) {
       const dir = fileOrDir;
-      console.log("in", currentDirectory);
-      console.log("putting", dir);
       currentDirectory.dirs.set(dir.name, dir);
     } else {
       const file = fileOrDir;
@@ -107,13 +104,29 @@ class FileSystem {
     }
     return currentDirectory;
   }
+  calculateDirectorySizes() {
+    function calculateDirectorySizesRecurse(directory) {
+      const filesSize = pipe(
+        get("files"),
+        arrayFromMapValues,
+        map(get("size")),
+        sum)(directory);
+      const subdirsSize = pipe(
+        get("dirs"),
+        arrayFromMapValues,
+        map(calculateDirectorySizesRecurse),
+        sum)(directory);
+      directory.totalSize = filesSize + subdirsSize;
+      return directory.totalSize;
+    }
+    calculateDirectorySizesRecurse(this.root);
+  }
 }
 
 const parseTerminalOutput = (input) => {
   const instructions = pipe(split("$"), tail, map(trim))(input);
   const fs = new FileSystem();
   instructions.forEach(instruction => {
-    console.log(instruction);
     const [cmd, output] = pipe(split("\n"), diverge([head, tail]))(instruction);
     const [cmdType, args] = pipe(split(" "), diverge([head, tail]))(cmd);
     if (cmdType === "cd") {
@@ -125,6 +138,12 @@ const parseTerminalOutput = (input) => {
     }
   });
   return fs;
+}
+
+function unwrapNestedDirectoriesToList(directory) {
+  const dirArray = arrayFromMapValues(directory.dirs);
+  const result = [directory, ...flatMap(unwrapNestedDirectoriesToList, dirArray)];
+  return result;
 }
 
 const testInput =
@@ -152,6 +171,41 @@ $ ls
 5626152 d.ext
 7214296 k`;
 
+const directoryIsLargerThan = size => dir => dir.totalSize >= size;
+const directoryIsSmallerThan = size => dir => dir.totalSize <= size;
 
-console.log(testInput.split("$"))
-console.log(directorySize(parseTerminalOutput(testInput).root));
+//q1
+const sumOfSmallDirectories = sizeCutoff => input => {
+  const fs = parseTerminalOutput(input);
+  fs.calculateDirectorySizes();
+  return pipe(
+    unwrapNestedDirectoriesToList,
+    filter(directoryIsSmallerThan(sizeCutoff)),
+    map(get("totalSize")),
+    sum
+  )(fs.root)
+}
+
+// q2
+const smallestDirectorySizeWhichFreesEnoughSpace = totalSpace => neededSpace => input => {
+  const fs = parseTerminalOutput(input);
+  fs.calculateDirectorySizes();
+  const currentUnused = totalSpace - fs.root.totalSize;
+  const sizeCutoff = neededSpace - currentUnused;
+  if (sizeCutoff <= 0) {
+    return 0;
+  }
+  return pipe(
+    unwrapNestedDirectoriesToList,
+    filter(directoryIsLargerThan(sizeCutoff)),
+    map(get("totalSize")),
+    min
+  )(fs.root)
+}
+
+const q2 = smallestDirectorySizeWhichFreesEnoughSpace(70000000)(30000000);
+
+console.log(sumOfSmallDirectories(100000)(testInput));
+console.log(sumOfSmallDirectories(100000)(input));
+console.log(q2(testInput));
+console.log(q2(input));
