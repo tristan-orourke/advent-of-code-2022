@@ -33,3 +33,6 @@ export const wrapWithLogger = fn => (...input) => {
 export const branch = (predicateFn, trueFn, falseFn) => input => predicateFn(input) ? trueFn(input) : falseFn(input);
 
 export const arrayFromMapValues = m => Array.from(m.values());
+
+export const reduceWithIndex = reduce.convert({cap: false});
+export const mapWithIndex = map.convert({cap: false});
