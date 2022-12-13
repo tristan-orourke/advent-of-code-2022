@@ -36,6 +36,7 @@ export const log = message => input => {
   return input;
 }
 
+
 export const pipeWithLogger = (...fns) =>
   spread(pipe)([
     ...map(fn => pipe(log("pipe input"), fn), fns),
