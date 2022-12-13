@@ -1,3 +1,4 @@
+import { size } from "lodash";
 import { identity, parseInt, reduce, map } from "lodash/fp"
 
 /**
@@ -30,9 +31,22 @@ export const wrapWithLogger = fn => (...input) => {
   return output;
 }
 
+export const pipeWithLogger = (...fns) => (...input) => {
+  console.log("pipe input", input);
+  let output = input;
+  for (let index = 0; index < size(fns); index++) {
+    if (index > 0) console.log("interim input", output);
+    output = fns[index](...output);    
+  }
+  console.log("pipe output", output);
+  return output;
+}
+
 export const branch = (predicateFn, trueFn, falseFn) => input => predicateFn(input) ? trueFn(input) : falseFn(input);
 
 export const arrayFromMapValues = m => Array.from(m.values());
 
 export const reduceWithIndex = reduce.convert({cap: false});
 export const mapWithIndex = map.convert({cap: false});
+
+export const matchRegex = pattern => str => str.match(pattern);
