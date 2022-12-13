@@ -1,4 +1,4 @@
-import { eq, filter, head, join, map, pipe, reduce, size, split, toArray, tail, reverse, subtract, flip, identity, overEvery, negate } from "lodash/fp";
+import { eq, filter, head, join, map, pipe, reduce, size, split, toArray, tail, reverse, negate, minBy } from "lodash/fp";
 import { log, pipeWithLogger, wrapWithLogger } from "./util";
 import input from "./input/day12";
 
@@ -76,7 +76,7 @@ const expandEdge = grid => isLegalTransition => ({ visitedMap, edge }) => {
     filter(isLegalTransition(fromPosition))
   )(fromPosition);
   return reduce((acc, newEdge) => {
-    const stepsToFromPosition = acc.visitedMap.get(positionToKey(fromPosition));
+    const stepsToFromPosition = acc.visitedMap.get(positionToKey(fromPosition)).steps;
     acc.visitedMap.set(positionToKey(newEdge), {prevPosition: fromPosition, steps: stepsToFromPosition + 1});
     acc.edge.push(newEdge)
     return acc;
@@ -94,20 +94,20 @@ const repeatWhile = (fn, conditionFn) => initialInput => {
   return value;
 };
 
-const findMapToEnd = grid => {
-  const initialPosition = findPosition(grid)("S");
-  const endPosition = findPosition(grid)("E");
-  const endKey = positionToKey(endPosition);
-  const initialInput = { visitedMap: new Map([[positionToKey(initialPosition), {prevPosition: null, steps: 0}]]), edge: [initialPosition] };
-  const findFinalState = repeatWhile(
-    expandEdge(grid)(canReachPosition(grid)),
-    ({ visitedMap, edge }) => {
-      return !visitedMap.has(endKey) && size(edge) > 0
-    }
-  )
-  const { visitedMap } = findFinalState(initialInput);
-  return visitedMap;
-}
+// const findMapToEnd = grid => {
+//   const initialPosition = findPosition(grid)("S");
+//   const endPosition = findPosition(grid)("E");
+//   const endKey = positionToKey(endPosition);
+//   const initialInput = { visitedMap: new Map([[positionToKey(initialPosition), {prevPosition: null, steps: 0}]]), edge: [initialPosition] };
+//   const findFinalState = repeatWhile(
+//     expandEdge(grid)(canReachPosition(grid)),
+//     ({ visitedMap, edge }) => {
+//       return !visitedMap.has(endKey) && size(edge) > 0
+//     }
+//   )
+//   const { visitedMap } = findFinalState(initialInput);
+//   return visitedMap;
+// }
 
 const constructMap = grid => isLegalTransition => mapIsComplete => startingPosition => {
   const initialInput = { visitedMap: new Map([[positionToKey(startingPosition), {prevPosition: null, steps: 0}]]), edge: [startingPosition] };
@@ -117,6 +117,16 @@ const constructMap = grid => isLegalTransition => mapIsComplete => startingPosit
   )
   const { visitedMap } = findFinalState(initialInput);
   return visitedMap;
+}
+
+const findMapToEnd = grid => {
+  const initialPosition = findPosition(grid)("S");
+  const endPosition = findPosition(grid)("E");
+  const endKey = positionToKey(endPosition);
+  return constructMap(grid)(canReachPosition(grid))(
+    ({ visitedMap, edge }) => {
+      return !visitedMap.has(endKey) && size(edge) > 0
+    })(initialPosition) //startingPosition
 }
 
 const constructPathToEnd = grid => visitedMap => {
@@ -129,12 +139,23 @@ const constructPathToEnd = grid => visitedMap => {
   return reverse(path);
 }
 
-const findLatestStartingPoint = grid => visitedMap => {
-  const startingPoints = [
+const findDistanceFromLatestStartingPoint = grid => {
+  const initialPosition = findPosition(grid)("E");
+  const canReachPositionGoingDown = fromPos => toPos => canReachPosition(grid)(toPos)(fromPos);
+  const visitedMap = constructMap(grid)(canReachPositionGoingDown)(
+    ({ edge }) => size(edge) > 0)(initialPosition) //startingPosition 
+  const allPossibleStartingPoints = [
     findPosition(grid)("S"),
     ...findAllPositions(grid)("a")
   ];
-
+  const latestStartingPoint = pipe(
+    filter(position => visitedMap.has(positionToKey(position))),
+    minBy(
+      position => visitedMap.get(positionToKey(position)).steps, // this is the distance from End
+    )
+  )(allPossibleStartingPoints);  
+ 
+  return visitedMap.get(positionToKey(latestStartingPoint)).steps;
 }
 
 const testInput =
@@ -156,13 +177,9 @@ console.log(pipe(
   n => n - 1,
 )(input));
 
-// console.log(pipe(
-//   split("\n"),
-//   map(toArray),
-//   grid => pipe(
-//     findCompleteMap,
-//     constructPathToEnd(grid)
-//   )(grid),
-//   size,
-//   n => n - 1,
-// )(testInput));
+// q2
+console.log(pipe(
+  split("\n"),
+  map(toArray),
+  findDistanceFromLatestStartingPoint,
+)(input));
