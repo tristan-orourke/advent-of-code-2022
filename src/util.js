@@ -1,5 +1,5 @@
-import { size } from "lodash";
-import { identity, parseInt, reduce, map } from "lodash/fp"
+import {performance} from "perf_hooks";
+import { identity, parseInt, reduce, map, pipe, spread } from "lodash/fp"
 
 /**
  * Apply the same input to an array of functions, result in an array of outputs
@@ -22,7 +22,7 @@ export const countWhereTrue = countWhere(identity);
  * @param {(index: number) => T} initializer
  * @returns {T[]}
  */
-export const makeArray = (length, initializer) => Array.from({length}, (_, i) => initializer(i));
+export const makeArray = (length, initializer) => Array.from({ length }, (_, i) => initializer(i));
 
 export const wrapWithLogger = fn => (...input) => {
   console.log("input", input);
@@ -31,22 +31,31 @@ export const wrapWithLogger = fn => (...input) => {
   return output;
 }
 
-export const pipeWithLogger = (...fns) => (...input) => {
-  console.log("pipe input", input);
-  let output = input;
-  for (let index = 0; index < size(fns); index++) {
-    if (index > 0) console.log("interim input", output);
-    output = fns[index](...output);    
-  }
-  console.log("pipe output", output);
-  return output;
+export const log = message => input => {
+  console.log(message, input);
+  return input;
 }
+
+export const pipeWithLogger = (...fns) =>
+  spread(pipe)([
+    ...map(fn => pipe(log("pipe input"), fn), fns),
+    log("pipe output")
+  ]);
 
 export const branch = (predicateFn, trueFn, falseFn) => input => predicateFn(input) ? trueFn(input) : falseFn(input);
 
 export const arrayFromMapValues = m => Array.from(m.values());
 
-export const reduceWithIndex = reduce.convert({cap: false});
-export const mapWithIndex = map.convert({cap: false});
+export const reduceWithIndex = reduce.convert({ cap: false });
+export const mapWithIndex = map.convert({ cap: false });
 
 export const matchRegex = pattern => str => str.match(pattern);
+export const testRegex = pattern => str => pattern.test(str);
+
+export const time = fn => (...input) => {
+  const startTime = performance.now();
+  const output = fn(...input);
+  const endTime = performance.now();
+  console.log(`Function execution took ${endTime - startTime} milliseconds`);
+  return output;
+}

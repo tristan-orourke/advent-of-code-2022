@@ -1,15 +1,16 @@
-import { add, cond, constant, divide, eq, floor, get, head, identity, isInteger, map, multiply, nth, pipe, range, size, sortBy, split, spread, subtract, take, toInteger, reduce, tail } from "lodash/fp"
-import { matchRegex, pipeWithLogger, wrapWithLogger } from "./util";
+import { add, cond, constant, divide, eq, floor, get, head, identity, isInteger, map, multiply, nth, pipe, range, size, sortBy, split, spread, subtract, take, toInteger, reduce, tail, stubTrue, reverse, toSafeInteger } from "lodash/fp"
+import { matchRegex, pipeWithLogger, testRegex, time, wrapWithLogger } from "./util";
+import input from "./input/day11";
 
 const operandToFunction = cond([
-  [eq('+'), add],
-  [eq('-'), subtract],
-  [eq('*'), multiply],
-  [eq('/'), divide]
+  [eq('+'), constant(add)],
+  [eq('-'), constant(subtract)],
+  [eq('*'), constant(multiply)],
+  [eq('/'), constant(divide)]
 ]);
 
 const valueToFunction = cond([
-  [eq('old'), identity],
+  [eq('old'), constant(toSafeInteger)],
   [pipe(Number, isInteger), pipe(toInteger, constant)]
 ]);
 
@@ -19,21 +20,19 @@ const operationToFunction = line => {
   const getA = valueToFunction(a);
   const getB = valueToFunction(b);
   const operand = operandToFunction(operandRaw);
-  return (input) => operand(getB(input), getA(input));
+  return (input) => operand(getA(input), getB(input));
 }
 
-const isDivisibleBy = factor => value => value % factor === 0;
+const isDivisibleBy = factor => value => toSafeInteger(value) % toSafeInteger(factor) === 0;
 
 const divisibleByPattern = /Test: divisible by (\d+)/;
-const testToFunction = cond([
-  [divisibleByPattern.test, pipeWithLogger(matchRegex(divisibleByPattern), nth(1), toInteger, isDivisibleBy)]
+const parseTestDivisor = cond([
+  [testRegex(divisibleByPattern), pipe(matchRegex(divisibleByPattern), nth(1), toInteger)]
 ]);
 
 const parseTarget = pipe(matchRegex(/throw to monkey (\d+)/), nth(1), toInteger);
 
-const initializeQueue = pipe(
-  split("\n"),
-  nth(1),
+const parseQueue = pipe(
   matchRegex(/Starting items: (.*)/),
   nth(1),
   split(", "),
@@ -42,16 +41,43 @@ const initializeQueue = pipe(
 
 const initializeMonkey = monkeyBlock => {
   const lines = split("\n", monkeyBlock);
-  console.log(divisibleByPattern.test(lines[3]));
   return {
     operation: operationToFunction(lines[2]),
-    test: testToFunction(lines[3]),
+    testDivisor: parseTestDivisor(lines[3]),
     trueTarget: parseTarget(lines[4]),
     falseTarget: parseTarget(lines[5]),
-    items: initializeQueue(lines[1]),
+    items: parseQueue(lines[1]),
     inspectionCount: 0,
   }
 };
+
+const initializeMonkeyWithDivideOperation = monkeyBlock => {
+  const lines = split("\n", monkeyBlock);
+  return {
+    operation: pipe(
+      operationToFunction(lines[2]),
+      n => divide(n, 3),
+      toInteger
+    ),
+    testDivisor: parseTestDivisor(lines[3]),
+    trueTarget: parseTarget(lines[4]),
+    falseTarget: parseTarget(lines[5]),
+    items: parseQueue(lines[1]),
+    inspectionCount: 0,
+  }
+};
+
+const adjustMonkeysForLeastCommonMultiple = monkeys => {
+  const leastCommonMultiple = reduce(multiply, 1, map(get("testDivisor"), monkeys));
+  const adjustMonkey = monkey => ({
+    ...monkey,
+    operation: pipe(
+      monkey.operation,
+      n => n % leastCommonMultiple
+    ),
+  });
+  return map(adjustMonkey, monkeys);
+}
 
 const throwToMonkey = monkeys => (target, value) => {
   const newMonkeys = [...monkeys];
@@ -65,12 +91,12 @@ const throwToMonkey = monkeys => (target, value) => {
 const activateMonkeyOnce = index => monkeys => {
   const monkey = monkeys[index];
   const item = head(monkey.items);
-  const newValue = pipe(monkey.operation, divide(3), floor)(item);
-  const target = monkey.test(newValue) ? monkey.trueTarget : monkey.falseTarget;
+  const newValue = monkey.operation(item);
+  const target = isDivisibleBy(monkey.testDivisor)(newValue) ? monkey.trueTarget : monkey.falseTarget;
   const newMonkeys = throwToMonkey(monkeys)(target, newValue);
   newMonkeys[index] = {
     ...monkey,
-    items: tail(monkey.itmes),
+    items: tail(monkey.items),
     inspectionCount: monkey.inspectionCount + 1,
   };
   return newMonkeys;
@@ -79,7 +105,7 @@ const activateMonkeyOnce = index => monkeys => {
 const activateMonkey = (monkeys, index) => {
   let newMonkeys = monkeys;
   while (size(newMonkeys[index].items) > 0) {
-    newMonkeys = activateMonkeyOnce(index)(monkeys);
+    newMonkeys = activateMonkeyOnce(index)(newMonkeys);
   }
   return newMonkeys;
 }
@@ -124,14 +150,29 @@ Test: divisible by 17
 //Q1
 const totalMonkeyBusiness = pipe(
   split("\n\n"),
-  map(initializeMonkey),
+  map(initializeMonkeyWithDivideOperation),
   runRoundsN(20),
   map(get("inspectionCount")),
   sortBy(identity),
+  reverse,
   take(2),
   spread(multiply),
 )
 
-console.log(totalMonkeyBusiness(testInput));
+//Q1
+const totalMonkeyBusinessV2 = pipe(
+  split("\n\n"),
+  map(initializeMonkey),
+  adjustMonkeysForLeastCommonMultiple,
+  runRoundsN(10000),
+  map(get("inspectionCount")),
+  sortBy(identity),
+  reverse,
+  take(2),
+  spread(multiply),
+)
+
+console.log(time(totalMonkeyBusiness)(input));
+console.log(time(totalMonkeyBusinessV2)(input));
 
 
