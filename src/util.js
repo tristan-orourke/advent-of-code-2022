@@ -36,6 +36,11 @@ export const log = message => input => {
   return input;
 }
 
+export const logFunctionExecution = message => fn => (...input) => {
+  console.log(message);
+  return fn(...input)
+}
+
 
 export const pipeWithLogger = (...fns) =>
   spread(pipe)([
@@ -60,3 +65,5 @@ export const time = fn => (...input) => {
   console.log(`Function execution took ${endTime - startTime} milliseconds`);
   return output;
 }
+
+export const unspread = fn => (...args) => fn(args);
